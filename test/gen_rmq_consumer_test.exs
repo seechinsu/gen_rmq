@@ -12,7 +12,7 @@ defmodule GenRMQ.ConsumerTest do
   alias TestConsumer.WithoutReconnection
   alias TestConsumer.WithPriority
 
-  @uri "amqp://guest:guest@localhost:5672"
+  @uri "amqp://user:bitnami@localhost:5672"
 
   setup_all do
     {:ok, conn} = rmq_open(@uri)

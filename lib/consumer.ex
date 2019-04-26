@@ -77,7 +77,7 @@ defmodule GenRMQ.Consumer do
       exchange: "gen_rmq_exchange",
       routing_key: "#",
       prefetch_count: "10",
-      uri: "amqp://guest:guest@localhost:5672",
+      uri: "amqp://user:bitnami@localhost:5672",
       concurrency: true,
       queue_ttl: 5000,
       retry_delay_function: fn attempt -> :timer.sleep(1000 * attempt) end,
@@ -94,6 +94,7 @@ defmodule GenRMQ.Consumer do
   @callback init() :: [
               queue: String.t(),
               exchange: String.t(),
+              exchange_type: String.t(),
               routing_key: String.t(),
               prefetch_count: String.t(),
               uri: String.t(),
@@ -368,6 +369,7 @@ defmodule GenRMQ.Consumer do
   defp setup_consumer(%{in: chan, config: config, module: module} = state) do
     queue = config[:queue]
     exchange = config[:exchange]
+    exchange_type = config[:exchange_type]
     routing_key = config[:routing_key]
     prefetch_count = String.to_integer(config[:prefetch_count])
     ttl = config[:queue_ttl]
@@ -381,8 +383,15 @@ defmodule GenRMQ.Consumer do
       |> setup_priority(max_priority)
 
     Basic.qos(chan, prefetch_count: prefetch_count)
+
+    case exchange_type do
+      "fanout" -> Exchange.fanout(chan, exchange, durable: true)
+      "topic" -> Exchange.topic(chan, exchange, durable: true)
+      "direct" -> Exchange.direct(chan, exchange, durable: true)
+      _ -> Exchange.topic(chan, exchange, durable: true)
+    end
+
     Queue.declare(chan, queue, durable: true, arguments: arguments)
-    Exchange.topic(chan, exchange, durable: true)
     Queue.bind(chan, queue, exchange, routing_key: routing_key)
 
     consumer_tag = apply(module, :consumer_tag, [])
@@ -396,11 +405,18 @@ defmodule GenRMQ.Consumer do
         ttl = config[:queue_ttl]
         queue = config[:queue]
         exchange = config[:exchange]
+        exchange_type = config[:exchange_type]
         dl_queue = config[:deadletter_queue] || "#{queue}_error"
         dl_exchange = config[:deadletter_queue] || "#{exchange}.deadletter"
 
         Queue.declare(chan, dl_queue, durable: true, arguments: setup_ttl([], ttl))
-        Exchange.topic(chan, dl_exchange, durable: true)
+
+        case exchange_type do
+          "fanout" -> Exchange.fanout(chan, dl_exchange, durable: true)
+          "topic" -> Exchange.topic(chan, dl_exchange, durable: true)
+          "direct" -> Exchange.direct(chan, dl_exchange, durable: true)
+        end
+
         Queue.bind(chan, dl_queue, dl_exchange, routing_key: "#")
 
         [{"x-dead-letter-exchange", :longstr, dl_exchange}]

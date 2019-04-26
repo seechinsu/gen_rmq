@@ -37,7 +37,7 @@ defmodule GenRMQ.Publisher do
   def init() do
     [
       exchange: "gen_rmq_exchange",
-      uri: "amqp://guest:guest@localhost:5672"
+      uri: "amqp://user:bitnami@localhost:5672"
       app_id: :my_app_id
     ]
   end
@@ -46,6 +46,7 @@ defmodule GenRMQ.Publisher do
   """
   @callback init() :: [
               exchange: String.t(),
+              exchange_type: String.t(),
               uri: String.t(),
               app_id: Atom.t()
             ]
@@ -164,7 +165,16 @@ defmodule GenRMQ.Publisher do
   defp setup_publisher(%{module: module, config: config} = state) do
     {:ok, conn} = connect(state)
     {:ok, channel} = Channel.open(conn)
-    Exchange.topic(channel, config[:exchange], durable: true)
+    exchange = config[:exchange]
+    exchange_type = config[:exchange_type]
+
+    case exchange_type do
+      "fanout" -> Exchange.fanout(channel, exchange, durable: true)
+      "topic" -> Exchange.topic(channel, exchange, durable: true)
+      "direct" -> Exchange.direct(channel, exchange, durable: true)
+      _ -> Exchange.topic(channel, exchange, durable: true)
+    end
+
     {:ok, %{channel: channel, module: module, config: config, conn: conn}}
   end
 

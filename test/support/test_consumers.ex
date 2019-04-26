@@ -7,9 +7,10 @@ defmodule TestConsumer do
       [
         queue: "gen_rmq_in_queue",
         exchange: "gen_rmq_in_exchange",
+        exchange_type: "topic",
         routing_key: "#",
         prefetch_count: "10",
-        uri: "amqp://guest:guest@localhost:5672",
+        uri: "amqp://user:bitnami@localhost:5672",
         queue_ttl: 1000
       ]
     end
@@ -37,9 +38,10 @@ defmodule TestConsumer do
       [
         queue: "gen_rmq_in_queue",
         exchange: "gen_rmq_in_exchange",
+        exchange_type: "topic",
         routing_key: "#",
         prefetch_count: "10",
-        uri: "amqp://guest:guest@localhost:5672",
+        uri: "amqp://user:bitnami@localhost:5672",
         concurrency: false,
         queue_ttl: 1000
       ]
@@ -66,9 +68,10 @@ defmodule TestConsumer do
       [
         queue: "does_not_matter_queue",
         exchange: "does_not_matter_exchange",
+        exchange_type: "topic",
         routing_key: "#",
         prefetch_count: "10",
-        uri: "amqp://guest:guest@localhost:5672",
+        uri: "amqp://user:bitnami@localhost:5672",
         reconnect: false,
         queue_ttl: 1000
       ]
@@ -90,9 +93,10 @@ defmodule TestConsumer do
       [
         queue: "gen_rmq_in_queue_no_deadletter",
         exchange: "gen_rmq_in_exchange_no_deadletter",
+        exchange_type: "topic",
         routing_key: "#",
         prefetch_count: "10",
-        uri: "amqp://guest:guest@localhost:5672",
+        uri: "amqp://user:bitnami@localhost:5672",
         queue_ttl: 1000,
         deadletter: false
       ]
@@ -115,9 +119,10 @@ defmodule TestConsumer do
       [
         queue: "gen_rmq_in_queue_custom_deadletter",
         exchange: "gen_rmq_in_exchange_custom_deadletter",
+        exchange_type: "topic",
         routing_key: "#",
         prefetch_count: "10",
-        uri: "amqp://guest:guest@localhost:5672",
+        uri: "amqp://user:bitnami@localhost:5672",
         queue_ttl: 1000,
         deadletter_queue: "dl_queue",
         deadletter_exchange: "dl_exchange"
@@ -141,9 +146,10 @@ defmodule TestConsumer do
       [
         queue: "gen_rmq_in_queue_with_prio",
         exchange: "gen_rmq_in_exchange_with_prio",
+        exchange_type: "topic",
         routing_key: "#",
         prefetch_count: "10",
-        uri: "amqp://guest:guest@localhost:5672",
+        uri: "amqp://user:bitnami@localhost:5672",
         queue_ttl: 1000,
         queue_max_priority: 100
       ]

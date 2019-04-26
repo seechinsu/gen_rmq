@@ -10,24 +10,24 @@ GenRMQ is a set of [behaviours][behaviours] meant to be used to create RabbitMQ 
 Internally it is using [AMQP][amqp] elixir RabbitMQ client. The idea is to reduce boilerplate consumer / publisher
 code, which usually includes:
 
-* creating connection / channel and keeping it in a state
-* creating and binding queue
-* handling reconnections / consumer cancellations
+- creating connection / channel and keeping it in a state
+- creating and binding queue
+- handling reconnections / consumer cancellations
 
 The project currently provides the following functionality:
 
-* `GenRMQ.Consumer` - a behaviour for implementing RabbitMQ consumers
-* `GenRMQ.Publisher` - a behaviour for implementing RabbitMQ publishers
-* `GenRMQ.Processor` - a behaviour for implementing RabbitMQ message processors
-* `GenRMQ.RabbitCase` - test utilities for RabbitMQ ([example usage][rabbit_case_example])
+- `GenRMQ.Consumer` - a behaviour for implementing RabbitMQ consumers
+- `GenRMQ.Publisher` - a behaviour for implementing RabbitMQ publishers
+- `GenRMQ.Processor` - a behaviour for implementing RabbitMQ message processors
+- `GenRMQ.RabbitCase` - test utilities for RabbitMQ ([example usage][rabbit_case_example])
 
 ## Installation
 
-~~~elixir
+```elixir
 def deps do
   [{:gen_rmq, "~> 1.2.0"}]
 end
-~~~
+```
 
 ## Migrations
 
@@ -39,7 +39,7 @@ More thorough examples for using `GenRMQ.Consumer` and `GenRMQ.Publisher` can be
 
 ### Consumer
 
-~~~elixir
+```elixir
 defmodule Consumer do
   @behaviour GenRMQ.Consumer
 
@@ -49,7 +49,7 @@ defmodule Consumer do
       exchange: "gen_rmq_exchange",
       routing_key: "#",
       prefetch_count: "10",
-      uri: "amqp://guest:guest@localhost:5672",
+      uri: "amqp://user:bitnami@localhost:5672",
       retry_delay_function: fn attempt -> :timer.sleep(2000 * attempt) end
     ]
   end
@@ -62,57 +62,57 @@ defmodule Consumer do
     ...
   end
 end
-~~~
+```
 
-~~~elixir
+```elixir
 GenRMQ.Consumer.start_link(Consumer, name: Consumer)
-~~~
+```
 
 This will result in:
 
-* durable `gen_rmq_exchange.deadletter` exchange created or redeclared
-* durable `gen_rmq_in_queue_error` queue created or redeclared. It will be bound to `gen_rmq_exchange.deadletter`
-* durable topic `gen_rmq_exchange` exchange created or redeclared
-* durable `gen_rmq_in_queue` queue created or redeclared. It will be bound to `gen_rmq_exchange` exchange and has a deadletter exchange set to `gen_rmq_exchange.deadletter`
-* every `handle_message` callback will executed in separate process. This can be disabled by setting `concurrency: false` in `init` callback
-* on failed rabbitmq connection it will wait for a bit and then reconnect
+- durable `gen_rmq_exchange.deadletter` exchange created or redeclared
+- durable `gen_rmq_in_queue_error` queue created or redeclared. It will be bound to `gen_rmq_exchange.deadletter`
+- durable topic `gen_rmq_exchange` exchange created or redeclared
+- durable `gen_rmq_in_queue` queue created or redeclared. It will be bound to `gen_rmq_exchange` exchange and has a deadletter exchange set to `gen_rmq_exchange.deadletter`
+- every `handle_message` callback will executed in separate process. This can be disabled by setting `concurrency: false` in `init` callback
+- on failed rabbitmq connection it will wait for a bit and then reconnect
 
 Optionally, you can:
 
-* specify queue ttl with `queue_ttl` attribute
-* disable deadletter setup by setting `deadletter` attribute to `false`
-* define custom names for deadletter queue / exchange by specifying `deadletter_queue` / `deadletter_exchange` attributes
-* create a [priority queue][priority_queues] with `queue_max_priority` attribute
+- specify queue ttl with `queue_ttl` attribute
+- disable deadletter setup by setting `deadletter` attribute to `false`
+- define custom names for deadletter queue / exchange by specifying `deadletter_queue` / `deadletter_exchange` attributes
+- create a [priority queue][priority_queues] with `queue_max_priority` attribute
 
 For all available options please check [consumer documentation][consumer_doc].
 
 ### Publisher
 
-~~~elixir
+```elixir
 defmodule Publisher do
   @behaviour GenRMQ.Publisher
 
   def init() do
     [
       exchange: "gen_rmq_exchange",
-      uri: "amqp://guest:guest@localhost:5672"
+      uri: "amqp://user:bitnami@localhost:5672"
     ]
   end
 end
-~~~
+```
 
-~~~elixir
+```elixir
 GenRMQ.Publisher.start_link(Publisher, name: Publisher)
 GenRMQ.Publisher.publish(Publisher, Jason.encode!(%{msg: "msg"}))
-~~~
+```
 
 ## Running tests
 
 You need [docker-compose][docker_compose] installed.
 
-~~~bash
+```bash
 $ make test
-~~~
+```
 
 ## How to contribute
 

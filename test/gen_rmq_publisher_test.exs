@@ -5,7 +5,7 @@ defmodule GenRMQ.PublisherTest do
   alias GenRMQ.Publisher
   alias GenRMQ.Test.Assert
 
-  @uri "amqp://guest:guest@localhost:5672"
+  @uri "amqp://user:bitnami@localhost:5672"
   @exchange "gen_rmq_out_exchange"
   @out_queue "gen_rmq_out_queue"
 
@@ -15,7 +15,7 @@ defmodule GenRMQ.PublisherTest do
     def init() do
       [
         exchange: "gen_rmq_out_exchange",
-        uri: "amqp://guest:guest@localhost:5672",
+        uri: "amqp://user:bitnami@localhost:5672",
         app_id: :my_app_id
       ]
     end
