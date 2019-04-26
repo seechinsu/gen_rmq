@@ -405,17 +405,20 @@ defmodule GenRMQ.Consumer do
         ttl = config[:queue_ttl]
         queue = config[:queue]
         exchange = config[:exchange]
-        exchange_type = config[:exchange_type]
+        # exchange_type = config[:exchange_type]
         dl_queue = config[:deadletter_queue] || "#{queue}_error"
         dl_exchange = config[:deadletter_queue] || "#{exchange}.deadletter"
 
         Queue.declare(chan, dl_queue, durable: true, arguments: setup_ttl([], ttl))
 
-        case exchange_type do
-          "fanout" -> Exchange.fanout(chan, dl_exchange, durable: true)
-          "topic" -> Exchange.topic(chan, dl_exchange, durable: true)
-          "direct" -> Exchange.direct(chan, dl_exchange, durable: true)
-        end
+        Exchange.topic(chan, dl_exchange, durable: true)
+
+        # case exchange_type do
+        #   "fanout" -> Exchange.fanout(chan, dl_exchange, durable: true)
+        #   "topic" -> Exchange.topic(chan, dl_exchange, durable: true)
+        #   "direct" -> Exchange.direct(chan, dl_exchange, durable: true)
+        #   _ -> Exchange.topic(chan, dl_exchange, durable: true)
+        # end
 
         Queue.bind(chan, dl_queue, dl_exchange, routing_key: "#")
 
